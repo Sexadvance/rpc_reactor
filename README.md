@@ -31,3 +31,25 @@ Thread id
 Logger 日志器
 1.提供打印日志的方法
 2.设置日志输出的路径
+
+```creator模型
+
+void loop
+{
+    while(!stop)
+    {
+        //1.取得下次定时任务的时间
+        int time_out = Max(1000,getNextTimerCallBack());
+        //2.调用epoll_wait()等待事件发生
+        int rt = epollwait()
+        if(rt  < 0)
+        {
+            
+        }
+    }
+
+
+}
+
+```
+
