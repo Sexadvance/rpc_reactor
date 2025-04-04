@@ -55,6 +55,7 @@ void* IOThread::Main(void* arg)
 
     DEBUGLOG("IOThread %d end loop",thread->m_thread_id);
 
+    return NULL;
 }
 
 EventLoop* IOThread::getEventLoop()

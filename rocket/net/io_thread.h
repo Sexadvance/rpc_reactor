@@ -20,7 +20,7 @@ public:
     void join();
 
 public:
-    static void*  Main(void* arg);
+    static void* Main(void* arg);
 
 
 private:
