@@ -44,7 +44,7 @@ void loop
         int rt = epollwait()
         if(rt  < 0)
         {
-            
+
         }
     }
 
@@ -52,4 +52,31 @@ void loop
 }
 
 ```
+### 2.4.1 TimerEvent 定时任务
+``` 
+1.指定时间点 arrive_time
+2.interval,ms间隔
+3.is_repeated 是否是周期性的
+4.is_cancled
+5.task
+
+cancle()
+canclerepeated()
+```
+
+### Timer
+定时器，它是一个TimerEvent集合
+Timer 集成 FdEvent
+```
+addTimerEvent();
+deleteTimerEvent();
+onTimer();   //当发生了I/O时间之后，需要执行的方法
+
+reserArriveTime()
+
+multimap 存储 TimerEvent <key(arrivetime),TimerEvent>
+```
+
+
+
 

@@ -20,6 +20,8 @@ public:
 
     FdEvent(int fd);
 
+    FdEvent();
+
     ~FdEvent();
 
     std::function<void()> handler(TriggerEvent event);
