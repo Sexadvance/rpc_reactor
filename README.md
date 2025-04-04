@@ -77,6 +77,17 @@ reserArriveTime()
 multimap 存储 TimerEvent <key(arrivetime),TimerEvent>
 ```
 
+### 2.5 IO 线程
+创建一个IO线程，他会帮我们执行
+1.创建一个新线程(pthread_create)
+2.在新线程里面，创建一个 Eventloop ,完成完成初始化
+3.开启 loop
+```
+class
+{
+    
+}
 
 
 
+```
