@@ -9,6 +9,9 @@
 namespace rocket
 {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+
 template<typename... Args>
 std::string formatString(const char *str,Args&&... args)
 {
@@ -53,6 +56,8 @@ if(rocket::Logger::GetGlobalLogger()->GetLogLevel() <= rocket::Error)\
     + "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + "]\t" + rocket::formatString(str,##__VA_ARGS__) + "\n"); \
     rocket::Logger::GetGlobalLogger()->log(); \
 }\
+
+#pragma GCC diagnostic pop
 
 enum LogLevel
 {
