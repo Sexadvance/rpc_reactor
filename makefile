@@ -49,7 +49,6 @@ $(PATH_BIN)/test_log:$(LIB_OUT)
 $(PATH_BIN)/test_eventloop:$(LIB_OUT)
 	$(CXX) $(CXXFLAGES) $(PATH_TESTCASES)/test_eventloop.cc -o $@ $(LIB_OUT) $(LIBS) -pthread 
 
-
 $(PATH_BIN)/test_tcp:$(LIB_OUT)
 	$(CXX) $(CXXFLAGES) $(PATH_TESTCASES)/test_tcp.cc -o $@ $(LIB_OUT) $(LIBS) -pthread
 

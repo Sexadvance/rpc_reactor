@@ -47,6 +47,11 @@ TcpAcceptor::TcpAcceptor(NetAddr::s_ptr local_addr):m_local_addr(local_addr)
     }
 }
 
+TcpAcceptor::~TcpAcceptor()
+{
+
+}
+
 int TcpAcceptor::accept()
 {
     if(m_family == AF_INET)
@@ -67,8 +72,13 @@ int TcpAcceptor::accept()
     }
     else
     {
-        
+        return -1;   
     }
+}
+
+int TcpAcceptor::getListenFd()
+{
+    return m_listenfd;
 }
 
 }

@@ -12,6 +12,9 @@ IOThread::IOThread()
     int rt = sem_init(&m_init_semaphore,0,0);
     assert(rt == 0);
 
+    rt = sem_init(&m_start_semaphore,0,0);
+    assert(rt == 0);
+
     pthread_create(&m_thread,NULL,&IOThread::Main,this);
 
     //wait,直到新线程执行完Main函数的前置
