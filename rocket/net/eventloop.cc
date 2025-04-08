@@ -19,6 +19,7 @@ if(rt != 0)\
 {\
     ERRORLOG("fail to epoll ctl when add fd = %d,errno = %d,error = %d",event->getFd(),errno,strerror(errno));\
 }\
+m_listen_fds.insert(event->getFd());\
 DEBUGLOG("add event success,fd[%d]",event->getFd())\
 
 #define DELETE_TO_EPOLL()\
@@ -34,6 +35,7 @@ if(rt == -1)\
 {\
     ERRORLOG("fail to epoll ctl when add fd = %d,errno = %d,error = %s",event->getFd(),errno,strerror(errno));\
 }\
+m_listen_fds.erase(event->getFd());\
 DEBUGLOG("del event success,fd[%d]",event->getFd()) \
 
 
@@ -121,7 +123,7 @@ void EventLoop::loop()
     {
         std::queue<std::function<void()>> tmp_tasks;
         {
-            ScopeMutext<Mutex> lock(m_mutex);
+            ScopeMutex<Mutex> lock(m_mutex);
             tmp_tasks.swap(m_pending_tasks);
         }
 
@@ -226,7 +228,7 @@ void EventLoop::deleteEpollEvent(FdEvent* event)
 void EventLoop::addTask(std::function<void()> cb,bool is_wake_up /*=false*/)
 {
     {
-        ScopeMutext<Mutex> lock(m_mutex);
+        ScopeMutex<Mutex> lock(m_mutex);
         m_pending_tasks.push(cb);
     }
     if(is_wake_up)
