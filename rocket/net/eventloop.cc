@@ -119,6 +119,7 @@ void EventLoop::initWakeUpFdEvent()
 
 void EventLoop::loop()
 {
+    m_is_looping = true;
     while(!m_stop_flag)
     {
         std::queue<std::function<void()>> tmp_tasks;
@@ -250,5 +251,11 @@ EventLoop* EventLoop::GetCurrentEventLoop()
     }
     return t_current_eventloop;
 }
+
+bool EventLoop::isLooping()
+{
+    return m_is_looping;
+}
+
 
 }
