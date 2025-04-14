@@ -1,8 +1,8 @@
 #ifndef ROCKET_NET_STRING_CODER_H
 #define ROCKET_NET_STRING_CODER_H
 
-#include "rocket/net/abstract_coder.h"
-#include "rocket/net/abstract_protocol.h"
+#include "rocket/net/coder/abstract_coder.h"
+#include "rocket/net/coder/abstract_protocol.h"
 
 namespace rocket
 {
@@ -42,9 +42,9 @@ public:
 
         std::shared_ptr<StringProtocol> msg = std::make_shared<StringProtocol>();
         msg->info = info;
-        msg->setReqId("123456");
+        msg->m_req_id = "123456";
         out_messages.push_back(msg);
-    }
+    }   
 
 };
 }

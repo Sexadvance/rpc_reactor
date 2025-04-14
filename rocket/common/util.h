@@ -8,6 +8,8 @@ namespace rocket
     pid_t getThreadId();
 
     int64_t getNowMs();
+
+    int32_t getInt32FromNetByte(const char* buf);
 }
 
 

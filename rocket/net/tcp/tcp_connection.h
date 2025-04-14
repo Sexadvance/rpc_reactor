@@ -1,4 +1,4 @@
-#ifndef ROCKET_NET_TCP_TCP_CONNECTION_H
+ #ifndef ROCKET_NET_TCP_TCP_CONNECTION_H
 #define ROCKET_NET_TCP_TCP_CONNECTION_H
 
 #include <memory>
@@ -7,8 +7,8 @@
 #include "rocket/net/tcp/net_addr.h"
 #include "rocket/net/tcp/tcp_buffer.h"
 #include "rocket/net/io_thread.h"
-#include "rocket/net/abstract_protocol.h"
-#include "rocket/net/abstract_coder.h"
+#include "rocket/net/coder/abstract_protocol.h"
+#include "rocket/net/coder/abstract_coder.h"
 
 namespace rocket
 {
