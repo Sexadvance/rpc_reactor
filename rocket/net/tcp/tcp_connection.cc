@@ -7,8 +7,8 @@
 
 namespace rocket
 {
-TcpConnection::TcpConnection(EventLoop* event_loop,int fd,int buffer_size,NetAddr::s_ptr peer_addr,TcpConnectionType type/*=TcpConnectionByServer*/)
-:m_event_loop(event_loop),m_peer_addr(peer_addr),m_state(NotConnected),m_fd(fd),m_connection_type(type)
+TcpConnection::TcpConnection(EventLoop* event_loop,int fd,int buffer_size,NetAddr::s_ptr local_addr,NetAddr::s_ptr peer_addr,TcpConnectionType type/*=TcpConnectionByServer*/)
+:m_event_loop(event_loop),m_local_addr(local_addr),m_peer_addr(peer_addr),m_state(NotConnected),m_fd(fd),m_connection_type(type)
 {
     m_in_buffer = std::make_shared<TcpBuffer>(buffer_size);
     m_out_buffer = std::make_shared<TcpBuffer>(buffer_size);
@@ -22,6 +22,7 @@ TcpConnection::TcpConnection(EventLoop* event_loop,int fd,int buffer_size,NetAdd
     if(m_connection_type == TcpConnectionByServer)
     {
         listenRead();
+        m_dispatcher = std::make_shared<RpcDispatcher>();
     }
 }
 
@@ -115,8 +116,9 @@ void TcpConnection::excute()
             //2.将响应message放入到发送缓冲区，监听可写事件回包
             INFOLOG("success get request[%s] from client[%s]",result[i]->m_req_id.c_str(),m_peer_addr->toString().c_str());
             std::shared_ptr<TinyPBProtocol> message = std::make_shared<TinyPBProtocol>();
-            message->m_pb_data = "hello. this is rocket rpc test data";
-            message->m_req_id = result[i]->m_req_id;
+            // message->m_pb_data = "hello. this is rocket rpc test data";
+            // message->m_req_id = result[i]->m_req_id;
+            m_dispatcher->dispatch(result[i],message,this);
             replay_message.emplace_back(message);
         }
 
@@ -273,6 +275,14 @@ void TcpConnection::pushReadMessage(const std::string& req_id,std::function<void
     m_read_dones.insert(std::make_pair(req_id,done));
 }
 
+NetAddr::s_ptr TcpConnection::getLocalAddr()
+{
+    return m_local_addr;
+}
+NetAddr::s_ptr TcpConnection::getPeerAddr()
+{
+    return m_peer_addr;
+}
 
 }
 

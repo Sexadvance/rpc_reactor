@@ -88,6 +88,15 @@ class
     
 }
 
+```
 
+### RPC服务端流程
+```
+启动的时候注册RPC对象
 
+1.从buffer读取数据，decode得到请求的TinyPBProtcol对象。然后从请求的TinyPBProtcol对象得到method_name，从orderService对象里根据service.method_name找到方法func
+2.找到对应的request type和response type
+3.将请求体TinyPBProtocol里面的pb_data反序列化为request type对象，声明一个response type对象
+4.func(request,response)
+5.将response对象序列化为pb_data,再塞入到TinyPBProtocol结构体中，进行encode然后塞入buffer里面，发送回包
 ```
