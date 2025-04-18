@@ -11,6 +11,20 @@
 
 namespace rocket
 {
+
+static RpcDispatcher* g_rpc_dispatcher = NULL;
+RpcDispatcher* RpcDispatcher::GetRpcDispatcher()
+{
+    if(g_rpc_dispatcher != NULL)
+    {
+        return g_rpc_dispatcher;
+    }
+    g_rpc_dispatcher = new RpcDispatcher();
+    return g_rpc_dispatcher;
+}
+
+
+
 void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,AbstractProtocol::s_ptr response,TcpConnection* connection)
 {
     std::shared_ptr<TinyPBProtocol> req_protocol = std::dynamic_pointer_cast<TinyPBProtocol> (request);
@@ -20,7 +34,7 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,AbstractProtocol::s
     std::string service_name;
     std::string method_name;
 
-    if(parseServiceFullName(method_full_name,service_name,method_name))
+    if(!parseServiceFullName(method_full_name,service_name,method_name))
     {
         setTinyPBError(rsp_protocol,ERROR_PARSE_SERVICE_NAME,"parse service name error");
         return;
@@ -48,7 +62,7 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,AbstractProtocol::s
 
     //反序列化，将pb_data反序列化为requeset
 
-    if(req_msg->ParseFromString(req_protocol->m_pb_data))
+    if(!req_msg->ParseFromString(req_protocol->m_pb_data))
     {
         ERRORLOG("%s | deserilize error",req_protocol->m_req_id.c_str());
         setTinyPBError(rsp_protocol,ERROR_FAILED_DESERILIZE,"deserialize error");
@@ -62,18 +76,16 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,AbstractProtocol::s
 
     INFOLOG("%s | get rpc request[%s]",req_protocol->m_req_id.c_str(),req_msg->ShortDebugString().c_str());
 
-    google::protobuf::Message* rsp_msg = service->GetRequestPrototype(method).New();
+    google::protobuf::Message* rsp_msg = service->GetResponsePrototype(method).New();
 
     RpcController rpcController;
     rpcController.SetLocalAddr(connection->getLocalAddr());
     rpcController.SetPeerAddr(connection->getPeerAddr());
     rpcController.SetReqId(req_protocol->m_req_id);
 
-
-
     service->CallMethod(method,&rpcController,req_msg,rsp_msg,NULL);
 
-    if(rsp_msg->SerializeToString(&rsp_protocol->m_pb_data))
+    if(rsp_msg->SerializeToString(&(rsp_protocol->m_pb_data)))
     {
         ERRORLOG("%s | serilize error,origin message[%s]",req_protocol->m_req_id.c_str(),rsp_msg->ShortDebugString().c_str());
         setTinyPBError(rsp_protocol,ERROR_FAILED_SERILIZE,"serilize error");
@@ -122,9 +134,9 @@ bool RpcDispatcher::parseServiceFullName(const std::string& full_name,std::strin
     return true;
 }
 
-void RpcDispatcher::registerService(const std::string& service_name,service_s_ptr service)
+void RpcDispatcher::registerService(service_s_ptr service)
 {
-    std::string servic_name = service->GetDescriptor()->full_name();
+    std::string service_name = service->GetDescriptor()->full_name();
     m_service_map[service_name] = service;
 }
 

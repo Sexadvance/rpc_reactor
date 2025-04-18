@@ -22,7 +22,7 @@ TcpClient::TcpClient(NetAddr::s_ptr peer_addr):m_peer_addr(peer_addr)
     m_fd_event = FdEventGroup::GetFdEventGroup()->getFdEvent(m_fd);
     m_fd_event->setNonBlock();
 
-    m_conncection = std::make_shared<TcpConnection>(m_event_loop,m_fd,128,peer_addr,nullptr,TcpConnectionByClient);
+    m_conncection = std::make_shared<TcpConnection>(m_event_loop,m_fd,128,nullptr,peer_addr,TcpConnectionByClient);
     m_conncection->setConnectionTyepe(TcpConnectionByClient);
 }
 
@@ -91,7 +91,7 @@ void TcpClient::connect(std::function<void()> done)
 }
 
 //异步的发送message
-//如果发送message成功，会调用don函数，函数的入参就是message对象
+//如果发送message成功，会调用done函数，函数的入参就是message对象
 void TcpClient::writeMessage(AbstractProtocol::s_ptr message,std::function<void(AbstractProtocol::s_ptr)> done)
 {
     //1.把message对象写入到 connection 的 buffer, done 也写入
@@ -102,7 +102,7 @@ void TcpClient::writeMessage(AbstractProtocol::s_ptr message,std::function<void(
 }
 
 //异步的发读取message
-//如果读取message成功，会调用don函数，函数的入参就是message对象
+//如果读取message成功，会调用done函数，函数的入参就是message对象
 void TcpClient::readMessage(const std::string& req_id,std::function<void(AbstractProtocol::s_ptr)> done){
 {
     //1.监听可读事件

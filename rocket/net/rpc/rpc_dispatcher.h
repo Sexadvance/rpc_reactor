@@ -15,10 +15,11 @@ class TcpConnection;
 class RpcDispatcher
 {
 public:
-typedef std::shared_ptr<google::protobuf::Service> service_s_ptr;
+    static RpcDispatcher* GetRpcDispatcher();
+    typedef std::shared_ptr<google::protobuf::Service> service_s_ptr;
     void dispatch(AbstractProtocol::s_ptr request,AbstractProtocol::s_ptr response,TcpConnection* connection);
 
-    void registerService(const std::string& service_name,service_s_ptr service);
+    void registerService(service_s_ptr service);
 
     void setTinyPBError(std::shared_ptr<TinyPBProtocol>msg,int32_t err_code,const std::string err_info);
 

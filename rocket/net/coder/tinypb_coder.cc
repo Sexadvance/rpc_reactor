@@ -187,7 +187,7 @@ const char* TinyPBCoder::encodeTinyPB(std::shared_ptr<TinyPBProtocol> message,in
     int req_id_len = message->m_req_id.length();
     int32_t req_id_len_net = htonl(req_id_len);
     memcpy(tmp,&req_id_len_net,sizeof(pk_len_net));
-    tmp+=sizeof(req_id_len_net); 
+    tmp+=sizeof(req_id_len_net);
     if(!message->m_req_id.empty())
     {
         memcpy(tmp,&(message->m_req_id[0]),req_id_len);
@@ -195,7 +195,7 @@ const char* TinyPBCoder::encodeTinyPB(std::shared_ptr<TinyPBProtocol> message,in
     }
 
     //方法名
-    int32_t method_name_len = message->m_method_name_len;
+    int32_t method_name_len = message->m_method_name.length();
     int32_t method_name_len_net = htonl(method_name_len);
     memcpy(tmp,&method_name_len_net,sizeof(method_name_len_net));
     tmp+=sizeof(method_name_len_net);

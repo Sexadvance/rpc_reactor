@@ -22,7 +22,6 @@ TcpConnection::TcpConnection(EventLoop* event_loop,int fd,int buffer_size,NetAdd
     if(m_connection_type == TcpConnectionByServer)
     {
         listenRead();
-        m_dispatcher = std::make_shared<RpcDispatcher>();
     }
 }
 
@@ -118,7 +117,8 @@ void TcpConnection::excute()
             std::shared_ptr<TinyPBProtocol> message = std::make_shared<TinyPBProtocol>();
             // message->m_pb_data = "hello. this is rocket rpc test data";
             // message->m_req_id = result[i]->m_req_id;
-            m_dispatcher->dispatch(result[i],message,this);
+            
+            RpcDispatcher::GetRpcDispatcher()->dispatch(result[i],message,this);
             replay_message.emplace_back(message);
         }
 
@@ -144,7 +144,7 @@ void TcpConnection::excute()
 }
  
 void TcpConnection::onWrite()
-{//当前 out_buffer里面的数据全部发送给client
+{//当前 out_buffer里面的数据全部发送
     if(m_state != Connected)
     {
         ERRORLOG("onWrite error,client had already disconnected,addr[%s] ,clientfd[%d]",m_peer_addr->toString().c_str(),m_fd);
@@ -177,11 +177,11 @@ void TcpConnection::onWrite()
         int write_size = m_out_buffer->readAble();
         int read_index = m_out_buffer->readIndex();
 
-        int rt = write(m_fd,&(m_out_buffer->m_buffer[read_index ]),write_size);
+        int rt = write(m_fd,&(m_out_buffer->m_buffer[read_index]),write_size); 
 
         if(rt >= write_size)
         {
-            DEBUGLOG("data[%dbytes] has sent to client[%s]",rt,m_peer_addr->toString().c_str());
+            DEBUGLOG("data[%d]bytes has sent to client[%s]",rt,m_peer_addr->toString().c_str());
             is_write_all = true;
             break;
         }

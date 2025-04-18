@@ -49,14 +49,6 @@ std::string formatString(const char *str,Args&&... args)
         rocket::Logger::GetGlobalLogger()->log();\
     }\
 
-#define Error(str,...)\
-if(rocket::Logger::GetGlobalLogger()->GetLogLevel() <= rocket::Error)\
-{\
-    rocket::Logger::GetGlobalLogger()->pushLog(rocket::LogEvent(rocket::LogLevel::Error).toString() \
-    + "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + "]\t" + rocket::formatString(str,##__VA_ARGS__) + "\n");\
-    rocket::Logger::GetGlobalLogger()->log();\
-}\
-
 #pragma GCC diagnostic pop
 
 enum LogLevel
