@@ -85,7 +85,7 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,AbstractProtocol::s
 
     service->CallMethod(method,&rpcController,req_msg,rsp_msg,NULL);
 
-    if(rsp_msg->SerializeToString(&(rsp_protocol->m_pb_data)))
+    if(!rsp_msg->SerializeToString(&(rsp_protocol->m_pb_data)))
     {
         ERRORLOG("%s | serilize error,origin message[%s]",req_protocol->m_msg_id.c_str(),rsp_msg->ShortDebugString().c_str());
         setTinyPBError(rsp_protocol,ERROR_FAILED_SERILIZE,"serilize error");
@@ -106,6 +106,9 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,AbstractProtocol::s
     rsp_protocol->m_err_code = 0;
     INFOLOG("%s | dispatch success,request[%s],response[%s]",req_protocol->m_msg_id.c_str(),req_msg->ShortDebugString().c_str(),rsp_msg->ShortDebugString().c_str());
     
+    rsp_protocol->m_msg_id_len = req_protocol->m_msg_id_len;
+    rsp_protocol->m_msg_id = req_protocol->m_msg_id;
+
     delete req_msg;
     delete rsp_msg;
     req_msg = NULL;

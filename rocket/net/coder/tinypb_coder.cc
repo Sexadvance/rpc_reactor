@@ -164,6 +164,7 @@ const char* TinyPBCoder::encodeTinyPB(std::shared_ptr<TinyPBProtocol> message,in
 {
     if(message->m_msg_id.empty())
     {
+        DEBUGLOG("AAAAAAAAAAAAAAAAAA");
         message->m_msg_id = "123456789";
     }
 
