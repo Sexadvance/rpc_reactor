@@ -15,7 +15,6 @@ TcpConnection::TcpConnection(EventLoop* event_loop,int fd,int buffer_size,NetAdd
 
     m_fd_event = FdEventGroup::GetFdEventGroup()->getFdEvent(fd);
     m_fd_event->setNonBlock();
-    listenRead();
 
     m_coder = new TinyPBCoder();
 
@@ -87,7 +86,7 @@ void TcpConnection::onRead()
 
     if(is_close)//连接已经关闭
     {
-        INFOLOG("peer closed,peer  addr [%d],clientfd[%d]",m_peer_addr->toString().c_str(),m_fd);
+        INFOLOG("peer closed,peer  addr [%s],clientfd[%d]",m_peer_addr->toString().c_str(),m_fd);
         clear();
         return;
     }
@@ -115,8 +114,6 @@ void TcpConnection::excute()
             //2.将响应message放入到发送缓冲区，监听可写事件回包
             INFOLOG("success get request[%s] from client[%s]",result[i]->m_msg_id.c_str(),m_peer_addr->toString().c_str());
             std::shared_ptr<TinyPBProtocol> message = std::make_shared<TinyPBProtocol>();
-            // message->m_pb_data = "hello. this is rocket rpc test data";
-            // message->m_msg_id = result[i]->m_msg_id;
             
             RpcDispatcher::GetRpcDispatcher()->dispatch(result[i],message,this);
             replay_message.emplace_back(message);

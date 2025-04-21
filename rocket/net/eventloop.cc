@@ -156,6 +156,9 @@ void EventLoop::loop()
         {
             for(int i = 0;i < rt; i++)
             {
+                for(int i = 0;i<100000000;i++)
+                {
+                }
                 epoll_event trigger_event = result_events[i];
                 FdEvent* fd_event = static_cast<FdEvent*> (trigger_event.data.ptr);
                 if(fd_event == NULL)
@@ -171,6 +174,20 @@ void EventLoop::loop()
                 {
                     DEBUGLOG("fd %d trigger EPOLLOUT event",fd_event->getFd());
                     addTask(fd_event->handler(FdEvent::OUT_EVENT));
+                }
+                // if(!(trigger_event.events & EPOLLIN) && !(trigger_event.events & EPOLLOUT))
+                // {
+                //     DEBUGLOG("unknown event=%d",(int)trigger_event.events);
+                // }
+                if(trigger_event.events & EPOLLERR)
+                {
+                    DEBUGLOG("fd %d trigger EPOLLERR event",fd_event->getFd());
+                    deleteEpollEvent(fd_event);
+                    if(fd_event->handler(FdEvent::ERROR_EVENT) != nullptr)
+                    {
+                        DEBUGLOG("fd %d trigger EPOLLERR event",fd_event->getFd());
+                        addTask(fd_event->handler(FdEvent::ERROR_EVENT));
+                    }
                 }
             }
         }

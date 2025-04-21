@@ -19,7 +19,7 @@ public:
     ~TcpClient();
 
     //异步的进行connect
-    // 如果connect成功，done会被执行
+    // 如果connect完成，done会被执行
     void connect(std::function<void()> done);
 
     //异步的发送message
@@ -32,13 +32,27 @@ public:
 
     void stop();
 
+    int getConnectErrorCode();
+
+    std::string getConnectErrorInfo();
+
+    NetAddr::s_ptr getPeerAddr();
+    NetAddr::s_ptr getLocalAddr();
+
+    void initLocalAddr();
+
+
 private:
     NetAddr::s_ptr m_peer_addr;
+    NetAddr::s_ptr m_local_addr;
     EventLoop* m_event_loop{NULL};
 
     int m_fd{-1};
     FdEvent* m_fd_event{NULL};
     TcpConnection::s_ptr m_conncection;
+
+    int m_connect_error_code{0};
+    std::string m_connect_error_info;
 };
 }
 
