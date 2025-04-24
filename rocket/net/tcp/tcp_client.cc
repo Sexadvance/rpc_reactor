@@ -211,8 +211,4 @@ void TcpClient::addTimerEvent(TimerEvent::s_ptr timer_event)
     m_event_loop->addTimerEvent(timer_event);
 }
 
-void cancelTimerEvent(TimerEvent::s_ptr timer_event)
-{
-    
-}
 }

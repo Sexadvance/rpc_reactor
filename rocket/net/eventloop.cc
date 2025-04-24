@@ -156,9 +156,6 @@ void EventLoop::loop()
         {
             for(int i = 0;i < rt; i++)
             {
-                for(int i = 0;i<100000000;i++)
-                {
-                }
                 epoll_event trigger_event = result_events[i];
                 FdEvent* fd_event = static_cast<FdEvent*> (trigger_event.data.ptr);
                 if(fd_event == NULL)
