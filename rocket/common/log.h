@@ -84,7 +84,7 @@ class AsyncLogger
 {
 public:
     typedef std::shared_ptr<AsyncLogger> s_ptr;
-    AsyncLogger(std::string& file_name, std::string& file_path, int max_file_size);
+    AsyncLogger(const std::string& file_name, std::string& file_path, int max_file_size);
 
     void stop();
 
@@ -126,7 +126,7 @@ class Logger
 public:
     typedef std::shared_ptr<Logger> s_ptr;
 
-    Logger(LogLevel level);
+    Logger(LogLevel level, int type = 1);
 
     void pushLog(const std::string& msg);
 
@@ -146,7 +146,7 @@ public:
 public:
     static Logger* GetGlobalLogger();
 
-    static void InitGlobalLogger();
+    static void InitGlobalLogger(int type = 1);
 
 private:
     Mutex m_mutex;
@@ -162,6 +162,7 @@ private:
 
     TimerEvent::s_ptr m_timer_event;
 
+    int m_type{0};
 };
 
 std::string LogLevelToString(LogLevel level);

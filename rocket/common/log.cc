@@ -4,7 +4,7 @@
 #include "rocket/common/log.h"
 #include "rocket/common/util.h"
 #include "rocket/net/eventloop.h"
-
+#include "rocket/common/run_time.h"
 
 namespace rocket
 {
@@ -23,24 +23,25 @@ Logger* Logger::GetGlobalLogger()
     return g_logger;
 }
 
-Logger::Logger(LogLevel level):m_set_level(level)
+Logger::Logger(LogLevel level, int type /*= 1*/):m_set_level(level), m_type(type)
 {
+    if(m_type == 0) return;
     m_async_logger = std::make_shared<AsyncLogger>(
-        Config::GetGlobalConfig()->m_log_file_name + "_rpc",
+        Config::GetGlobalConfig()->m_log_file_name +"_rpc",
         Config::GetGlobalConfig()->m_log_file_path,
         Config::GetGlobalConfig()->m_log_max_file_size
         );
 
     m_async_app_logger = std::make_shared<AsyncLogger>(
-        Config::GetGlobalConfig()->m_log_file_name + "_app",
+        Config::GetGlobalConfig()->m_log_file_name +"_app",
         Config::GetGlobalConfig()->m_log_file_path,
         Config::GetGlobalConfig()->m_log_max_file_size
-        );  
-    
+        );      
 }
 
 void Logger::init()
 {
+    if(m_type == 0) return;
     m_timer_event = std::make_shared<TimerEvent>(Config::GetGlobalConfig()->m_log_sync_interval,true, std::bind(&Logger::syncLoop,this));
     EventLoop::GetCurrentEventLoop()->addTimerEvent(m_timer_event);
 }
@@ -60,9 +61,10 @@ void Logger::syncLoop()
 
     //同步 m_app_buffer 到 app_async_logger 的buffer队尾
     std::vector<std::string> tmp_vec2;
-    ScopeMutex<Mutex> lock(m_mutex);
-    m_app_buffer.swap(tmp_vec2);
-    lock.unlock();
+    {
+        ScopeMutex<Mutex> lock(m_mutex);
+        m_app_buffer.swap(tmp_vec2);
+    }
     if(!tmp_vec2.empty())
     {
         m_async_app_logger->pushLogBuffer(tmp_vec2);
@@ -71,10 +73,10 @@ void Logger::syncLoop()
 
 
 
-void Logger::InitGlobalLogger()
+void Logger::InitGlobalLogger(int type /*=1*/)
 {
     LogLevel global_log_level = StringToLogLevel(Config::GetGlobalConfig()->m_log_level);
-    g_logger = new Logger(global_log_level);
+    g_logger = new Logger(global_log_level,type);
     printf("init log level [%s]\n",LogLevelToString(global_log_level).c_str());
 
     g_logger->init();
@@ -132,6 +134,17 @@ std::string LogEvent::toString()
        << "[" << m_pid << ":" << m_thread_id << "]\t";
 
     //获取当前线程处理请求的msgid
+    std::string msg_id = RunTime::GetRunTime()->m_msg_id;
+    std::string method_name = RunTime::GetRunTime()->m_method_name;
+
+    if(!msg_id.empty())
+    {
+        ss << "[" << msg_id << "]\t";
+    }
+    if(!method_name.empty())
+    {
+        ss << "[" << method_name << "]\t";
+    }
 
     return ss.str();
 
@@ -139,6 +152,11 @@ std::string LogEvent::toString()
 
 void Logger::pushLog(const std::string& msg)
 {
+    if(m_type == 0)
+    {
+        printf("%s\n",msg.c_str());
+        return;
+    }
     ScopeMutex<Mutex>lock(m_mutex);
     m_buffer.push_back(msg);
 }
@@ -169,7 +187,7 @@ void Logger::log()
 
 }
 
-AsyncLogger::AsyncLogger(std::string& file_name, std::string& file_path, int max_file_size)
+AsyncLogger::AsyncLogger(const std::string& file_name, std::string& file_path, int max_file_size)
 :m_file_name(file_name),m_file_path(file_path),m_max_file_size(max_file_size)
 {
     sem_init(&m_sempahore,0,0);
@@ -229,7 +247,7 @@ void* AsyncLogger::loop(void* arg)
         std::stringstream ss;
         ss << logger->m_file_path << logger->m_file_name << "_" << std::string(date) << "_";
 
-        std::string log_file_name = ss.str() + std::to_string(logger->m_no) + std::string(".log");
+        std::string log_file_name = ss.str() + std::string("log") + std::string(".") + std::to_string(logger->m_no) ;
 
         if(logger->m_reopen_flag)
         {

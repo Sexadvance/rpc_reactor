@@ -8,6 +8,8 @@
 #include  "rocket/net/rpc/rpc_controller.h"
 #include "rocket/net/tcp/net_addr.h"
 #include "rocket/net/tcp/tcp_connection.h"
+#include "rocket/common/run_time.h"
+
 
 namespace rocket
 {
@@ -32,6 +34,10 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,AbstractProtocol::s
 
     rsp_protocol->m_msg_id_len = req_protocol->m_msg_id_len;
     rsp_protocol->m_msg_id = req_protocol->m_msg_id;
+
+    rsp_protocol->m_method_name_len = req_protocol->m_method_name_len;
+    rsp_protocol->m_method_name = req_protocol->m_method_name;
+
     
     std::string method_full_name = req_protocol->m_method_name;
     std::string service_name;
@@ -85,6 +91,9 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,AbstractProtocol::s
     rpcController.SetLocalAddr(connection->getLocalAddr());
     rpcController.SetPeerAddr(connection->getPeerAddr());
     rpcController.SetMsgId(req_protocol->m_msg_id);
+
+    RunTime::GetRunTime()->m_msg_id = req_protocol->m_msg_id;
+    RunTime::GetRunTime()->m_method_name = method_name;
 
     service->CallMethod(method,&rpcController,req_msg,rsp_msg,NULL);
 

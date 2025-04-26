@@ -54,7 +54,7 @@ int main(int argc,char* argv[])
     if(argc != 2)
     {
         printf("start error, argc != 2\n");
-        printf("Sample: ./test_rpc_server ../conf/rocket.xml\n");
+        printf("Sample: ./sample_rpc_server ../conf/rocket.xml");
         return 0;
     }
 
