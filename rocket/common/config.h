@@ -1,5 +1,6 @@
 #ifndef ROCKET_COMMON_CONFIG_H
 #define ROCKET_COMMON_CONFIG_H
+#include <string>
 
 namespace rocket
 {
@@ -25,6 +26,7 @@ public:
 
     int m_port{0};
     int m_io_threads{0};
+    std::string m_ip;
 };
 
 

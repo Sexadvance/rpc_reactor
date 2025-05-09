@@ -19,6 +19,7 @@ public:
 
     void start();
 
+    void stop();
 private:
     void init();
 

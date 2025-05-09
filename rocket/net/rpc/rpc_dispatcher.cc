@@ -43,7 +43,7 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,AbstractProtocol::s
     std::string service_name;
     std::string method_name;
 
-    if(!parseServiceFullName(method_full_name,service_name,method_name))
+    if(!parseServiceFullName(method_full_name,service_name,method_name))           //得到服务名和方法
     {
         setTinyPBError(rsp_protocol,ERROR_PARSE_SERVICE_NAME,"parse service name error");
         return;

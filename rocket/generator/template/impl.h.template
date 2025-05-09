@@ -1,0 +1,6 @@
+#include "${PROJECT_NAME}.pb.h"
+#include <google/protobuf/service.h>
+
+class Impl : public ${SERVICE_NAME}{
+public:
+};

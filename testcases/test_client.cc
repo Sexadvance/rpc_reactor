@@ -75,8 +75,8 @@ int main()
 
     rocket::Logger::InitGlobalLogger();
 
-    //test_connect();
+    test_connect();
 
-    test_tcp_client();
+    //test_tcp_client();
     return 0;
 }

@@ -93,9 +93,12 @@ Config::Config(const char * xmlfile)
 
     READ_STR_FROM_XML_NODE(port,server_node);
     READ_STR_FROM_XML_NODE(io_threads,server_node);
+    READ_STR_FROM_XML_NODE(ip,server_node);
+
 
     m_port = std::atoi(port_str.c_str());
     m_io_threads = std::atoi(io_threads_str.c_str());
+    m_ip = ip_str;
 
     printf("Server -- PORT[%d], IO_THREADS[%d]\n",
             m_port,m_io_threads);

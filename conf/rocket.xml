@@ -10,6 +10,7 @@
     <server>
         <port>12345</port>
         <io_threads>4</io_threads>
+        <ip>127.0.0.1</ip>
     </server>
 
 

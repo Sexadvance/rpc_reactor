@@ -19,9 +19,10 @@ public:
 
     void join();
 
+    void stop();
+
 public:
     static void* Main(void* arg);
-
 
 private:
     pid_t m_thread_id{-1};      //线程号

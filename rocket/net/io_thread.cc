@@ -77,10 +77,9 @@ void IOThread::join()
     pthread_join(m_thread,NULL);
 }
 
- 
-
-
-
-
+void IOThread::stop()
+{
+    m_event_loop->stop();
+}
 
 }

@@ -17,9 +17,6 @@ namespace rocket
 RpcChannel::RpcChannel(NetAddr::s_ptr peer_addr):m_peer_addr(peer_addr)
 {
     m_client = std::make_shared<TcpClient>(m_peer_addr);
-
-
-
 }
 
 RpcChannel::~RpcChannel()

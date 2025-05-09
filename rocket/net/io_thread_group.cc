@@ -1,4 +1,3 @@
-
 #include "rocket/net/io_thread_group.h"
 #include "rocket/common/log.h"
 
@@ -42,5 +41,14 @@ IOThread* IOThreadGroup::getIOThread()
     }
     return m_io_thread_groups[m_index++];
 }
+
+void IOThreadGroup::stop()
+{
+    for(auto i:m_io_thread_groups)
+    {
+        i->stop();
+    }
+}
+
 }
 
