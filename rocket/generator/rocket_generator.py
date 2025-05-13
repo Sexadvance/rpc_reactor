@@ -14,7 +14,7 @@ bin_path = ""
 conf_path = ""
 test_client_path = ""
 test_client_tool_path = ""
-src_path = ""               # 项目地址 
+src_path = ""               # service地址 
 generate_path = ""          # 模板地址
 
 def parseInput():
@@ -33,8 +33,6 @@ def parseInput():
         elif opt == "-o" or opt == "--output_path" :
             global out_project_path
             out_project_path = arg
-            if out_project_path != '/':
-                out_project_path = out_project_path + '/'
         else:
             raise Exception("invaild options:[" + opt + ": " + arg + "]")
     
@@ -53,13 +51,17 @@ def generate_dir():
     print('=' * 75)
     print('Begin to generate project dir')
 
-    proj_path = out_project_path + project_name.strip()[:-6]
+    global out_project_path
+    proj_path = out_project_path + '/server'
 
     global bin_path
     bin_path = out_project_path + '/bin'
 
     global conf_path
     conf_path = out_project_path + '/conf'
+
+    lib_path = out_project_path + '/lib'
+    obj_path = out_project_path + '/obj'
 
     global test_client_path
     test_client_path = out_project_path  + '/test_client'
@@ -68,31 +70,30 @@ def generate_dir():
     test_client_tool_path = test_client_path + '/test_tool'
 
     log_path = proj_path + '/log'
-    lib_path = proj_path + '/lib'
-    obj_path = proj_path + '/obj'
 
     global src_path
-    src_path = proj_path + '/' + project_name[:-6]
+    src_path = proj_path
     src_interface_path = src_path + '/interface'
-    src_service_path = src_path + '/service'
+    src_server_path = src_path + '/' + project_name[:-6]
     src_pb_path = src_path + '/pb'
     src_comm_path = src_path + '/comm'
 
     dir_list = []
     dir_list.append(out_project_path)
-    dir_list.append(proj_path)
     dir_list.append(bin_path)
     dir_list.append(conf_path)
-    dir_list.append(log_path)
     dir_list.append(lib_path)
     dir_list.append(obj_path)
+
+    dir_list.append(src_path)
+    dir_list.append(src_comm_path)
+    dir_list.append(src_interface_path)
+    dir_list.append(log_path)
+    dir_list.append(src_pb_path)
+    dir_list.append(src_server_path)
+
     dir_list.append(test_client_path)
     dir_list.append(test_client_tool_path)
-    dir_list.append(src_path)
-    dir_list.append(src_interface_path)
-    dir_list.append(src_service_path)
-    dir_list.append(src_pb_path)
-    dir_list.append(src_comm_path)
 
     for each in dir_list:
         if not os.path.exists(each):
@@ -112,13 +113,15 @@ def generate_pb():
     if os.system(cmd) != 0:
         raise Exception("excute cmd failed[" + cmd + "]")
     
+    print("succ generate pb")
+    
     print('End generateprotobuf file')
     print('=' * 75)
 
 def generate_makefile():
     print('=' * 75)
     print('Begin to generate makefile')
-    out_file = src_path + '/makefile'
+    out_file = out_project_path + '/makefile'
     if os.path.exists(out_file):
         print('makefile exists, skip generate')
         print('End generate makefile')
@@ -144,19 +147,22 @@ def generate_main():
     print('='  * 75)
     print('Begin to generate main')
 
-    out_file = src_path + '/service/main.cc'
+    out_file = src_path + '/' + project_name[:-6] + '/' + project_name[:-6] + '.cc'
     if os.path.exists(out_file):
         print('main exists, skip generate')
         print('End generate main')
         print('=' * 75)
         return
+    
+    vir_file = open(src_path + '/pb/' + project_name[:-6] + '.pb.h')
+    content =  vir_file.read()
+    vir_file.close()
+    class_name = re.search(r'class\s(.*?)\s:\spublic\s::PROTOBUF_NAMESPACE_ID::Service',content)
+    class_name = class_name.group(1)
 
-    global generate_path
     template_file  = open(generate_path + '/template/main.cc.template')
     tmpl = Template(template_file.read())
-    content = tmpl.safe_substitute(PROJECT_NAME = project_name[:-6],SERVICE_NAME = project_name[:-6])
-
-    out_file = src_path + '/service/main.cc'
+    content = tmpl.safe_substitute(PROJECT_NAME = project_name[:-6],SERVICE_NAME = class_name,FILE_NAME = project_name[:-6] + '.cc')
 
     file = open(out_file,'w')
     file.write(content)
@@ -181,6 +187,7 @@ def generate_Impl_h():
     # 读取pb文件中需要实现的虚函数
     vir_file = open(src_path + '/pb/' + project_name[:-6] + '.pb.h')
     content =  vir_file.read()
+    vir_file.close()
     vir_content = re.findall(r'virtual\svoid\s.+?;',content,flags=re.DOTALL)
 
     # for i in vir_content:
@@ -235,19 +242,47 @@ def generate_Impl_cc():
     content = '#include "impl.h"'
     vir_file = open(src_path + '/pb/' + project_name[:-6] + '.pb.h')
     vir_content =  vir_file.read()
+    vir_file.close()
     vir_content = re.findall(r'virtual\svoid\s.+?;',vir_content,flags=re.DOTALL)
     vir_func = []
     for i in vir_content:
         i = i[8:13] + 'Impl::' + i[13:]
         i = i[:-1] + '{\n' + '/'*20  + 'implement your service' + '/'*20 + '\n\n' + '}'
         vir_func.append(re.sub(r'::PROTOBUF_NAMESPACE_ID::RpcController\*','google::protobuf::RpcController*',i))
-    
+    ###################################################################################################
+
     file = open(out_file,'w')
     content += '\n\n' + '\n\n'.join(vir_func)
     # print(content)
     file.write(content)
     file.close()
-    ###################################################################################################
+
+    print('End to generate impl_cc')
+    print('='  * 75)
+
+def generate_conf():
+    print('='*75)
+    print('begin to generate conf')
+
+    out_file = out_project_path + '/conf' + '/config.xml'
+    if os.path.exists(out_file):
+        print('config.xml exists, skip generate')
+        print('End generate rocket.xml')
+        print('=' * 75)
+        return
+
+    template_file = open(generate_path + '/template/config.xml.template','r')
+    tmpl = Template(template_file.read())
+    content = tmpl.safe_substitute(
+        PROJECT_NAME = project_name[:-6])
+
+    file = open(out_file,'w')
+    file.write(content)
+    file.close()
+
+    print('End to generate conf')
+    print('=' * 75)
+
 
 def generate_project():
     try:
@@ -269,6 +304,8 @@ def generate_project():
         generate_Impl_h()
 
         generate_Impl_cc()
+
+        generate_conf()
 
         print('end generate rocket rpc server')
         print('=' * 125)

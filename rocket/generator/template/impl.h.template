@@ -3,4 +3,6 @@
 
 class Impl : public ${SERVICE_NAME}{
 public:
+    Impl(){};
+    ~Impl(){};
 };

@@ -100,3 +100,55 @@ class
 4.func(request,response)
 5.将response对象序列化为pb_data,再塞入到TinyPBProtocol结构体中，进行encode然后塞入buffer里面，发送回包
 ```
+
+3.1.1. protobuf
+
+**protobuf** 是 **google** 开源的有名的序列化库。谷歌出品，必属精品！**TinyRPC** 的 **TinyPB** 协议是基于 protobuf 来 序列化/反序列化 的，因此这个库是必须的。
+
+其地址为：https://github.com/protocolbuffers/protobuf
+
+推荐安装版本 **3.19.4** 及以上。安装过程不再赘述, **注意将头文件和库文件 copy 到对应的系统路径下。**
+
+### 3.1.2. tinyxml
+
+由于 **TinyRPC** 读取配置使用了 **xml** 文件，因此需要安装 **tinyxml** 库来解析配置文件。
+
+下载地址：https://sourceforge.net/projects/tinyxml/
+
+要生成 libtinyxml.a 静态库，需要简单修改 makefile 如下:
+
+```
+# 84 行修改为如下
+
+OUTPUT := libtinyxml.a
+
+
+
+# 194, 105 行修改如下
+
+${OUTPUT}: ${OBJS}
+
+  ${AR} $@ ${LDFLAGS} ${OBJS} ${LIBS} ${EXTRA_LIBS}
+```
+
+安装过程如下：
+
+```
+cd tinyxml
+
+make -j4
+
+
+
+# copy 库文件到系统库文件搜索路径下
+
+cp libtinyxml.a /usr/lib/
+
+
+
+# copy 头文件到系统头文件搜索路径下
+
+mkdir /usr/include/tinyxml
+
+cp *.h /usr/include/tinyxml
+```

@@ -7,13 +7,14 @@
 ## make clean && make -j4
 ####################################################
 
-PATH_BIN = ../bin
-PATH_SERVICE = service
-PATH_INTERFACE  = interface
-PATH_PB = pb
-PATH_COMM = comm
-PATH_OBJ = ../obj
-PATH_TEST_CLIENT = ../test_client
+PATH_BIN = ./bin
+PATH_MAIN = ./${PROJECT_NAME}
+
+PATH_INTERFACE  = $(PATH_MAIN)/interface
+PATH_PB = $(PATH_MAIN)/pb
+PATH_COMM = $(PATH_MAIN)/comm
+PATH_OBJ = ./obj
+PATH_TEST_CLIENT = ./test_client
 PATH_TEST_CLIENT_TOOL = $(PATH_TEST_CLIENT)/test_tool
 
 # librocket
@@ -26,44 +27,43 @@ PROTOBUF_LIB = /usr/local/lib/libprotobuf.a
 
 # tinyxml
 # if you have installed libtinyxml.a in another path, please modify it
-TINYXML_LIB = /usr/local/lib/libtimyxml.a
+TINYXML_LIB = /usr/local/lib/libtinyxml.a
 
 # out bin file
-TARGET = $(PATH_BIN)/${PROJECT_NAME}
+TARGET = ./$(PATH_BIN)/${PROJECT_NAME}
 
 CXX := g++
-CXX_FLAGS := -g -O3 -std=c++11 -Wall -Wno_deprecated -Wno_unused_but_set_variable
-CXX_FLAGS += -I../ -I ./$(PATH_PB) -I ./$(PATH_SERVICE -I ./(PATH_INTERFACE) -I ./$(PATH_COMM)
+CXX_FLAGS := -g -O3 -std=c++11 -Wall -Wno-deprecated -Wno-unused-but-set-variable
+CXX_FLAGS += -I $(PATH_PB) -I $(PATH_MAIN)/${PROJECT_NAME} -I $(PATH_INTERFACE) -I $(PATH_COMM)
 
 LIBS += $(ROCKET_LIB)
 LIBS += $(PROTOBUF_LIB) $(TINYXML_LIB)
-PB_OBJS := $(patsubst $(PATH_PB)/%.cc, $(PATH_OBJ)/%.o, $(wildcard $(PATH_PB)/%.cc))
-SERVICE_OBJS := $(patsubst $(PATH_SERVICE)/%.cc, $(PATH_SERVICE)/%.o, $(wildcard $(PATH_SERVICE)/%.cc))
-INTERFACE_OBJS := $(patsubst $(PATH_INTERFACE)/%.cc, $(PATH_INTERFACE)/%.o, $(wildcard $(PATH_INTERFACE)/%.cc))
-COMM_OBJS := $(patsubst $(PATH_COMM)/%.cc, $(PATH_COMM)/%.o, $(wildcard $(PATH_COMM)/%.cc))
-TEST_BINS := $(patsubst $(PATH_TEST_CLIENT)/%.cc, $(PATH_TEST_CLIENT_TOOL)/%.o, $(wildcard $(PATH_TEST_CLIENT)/%.cc))
+PB_OBJS := $(patsubst $(PATH_PB)/%.cc, $(PATH_OBJ)/%.o, $(wildcard $(PATH_PB)/*.cc))
+INTERFACE_OBJS := $(patsubst $(PATH_INTERFACE)/%.cc, $(PATH_INTERFACE)/%.o, $(wildcard $(PATH_INTERFACE)/*.cc))
+COMM_OBJS := $(patsubst $(PATH_COMM)/%.cc, $(PATH_COMM)/%.o, $(wildcard $(PATH_COMM)/*.cc))
+TEST_BINS := $(patsubst $(PATH_TEST_CLIENT)/%.cc, $(PATH_TEST_CLIENT_TOOL)/%.o, $(wildcard $(PATH_TEST_CLIENT)/*.cc))
 
 OUT : $(TARGET) $(TETS_BINS)
 
-$(TARGET) : $(PB_OBJS) $(SERVICE_OBJS) $(INTERFACE_OBJS)
-    $(CXX) $(CXX_FLAGS) main.cc -o $@ $^ $(LIBS) -ldl -lpthread
+$(TARGET) : $(PB_OBJS) $(INTERFACE_OBJS) $(COMM_OBJS)
+	$(CXX) $(CXX_FLAGS) ./${PROJECT_NAME}/${PROJECT_NAME}/${PROJECT_NAME}.cc -o $@ $^ $(LIBS) -ldl -lpthread
 
 $(PATH_TEST_CLIENT_TOOL)/%: $(PATH_TEST_CLIENT)/%/cc $(PB_OBJS)
-    $(CXX) $(CXX_FLAGS) $< -o $@ $(LIBS) $(PB_OBJS) -ldl -lpthread
+	$(CXX) $(CXX_FLAGS) $< -o $@ $(LIBS) $(PB_OBJS) -ldl -lpthread
 
 $(PATH_OBJ)/%.o : $(PATH_PB)/%.cc
-    $(CXX $(CXX_FLAGS) -c $< -o $@
+	$(CXX) $(CXX_FLAGS) -c $< -o $@
 
-$(PATH_OBJ)/%.o : $(PATH_SERVICE)/%.cc
-    $(CXX) $(CXX_FLAGS) -c $< -o $@
+$(PATH_OBJ)/%.o : $(PATH_MAIN)/%.cc
+	$(CXX) $(CXX_FLAGS) -c $< -o $@
 
 $(PATH_OBJ)/%.o : $(PATH_INTERFACE)/%.cc
-    $(CXX) $(CXX_FLAGS) -c $< -o $@
+	$(CXX) $(CXX_FLAGS) -c $< -o $@
 
 $(PATH_OBJ)/%.o : $(PATH_COMM)/%.cc
-    $(CXX) $(CXX_FLAGS) -c $< -o $@
+	$(CXX) $(CXX_FLAGS) -c $< -o $@
 
 PRINT-% : ; @echo $* = $($*)
 
 clean:
-    rm -f $(PB_OBJS) $(SERVICE_OBJS) $(INTERFACE_OBJS) $(COMM_OBJS) $(TARGET) $(TEST_BINS)
+	rm -f $(PB_OBJS) $(SERVICE_OBJS) $(INTERFACE_OBJS) $(COMM_OBJS) $(TARGET) $(TEST_BINS)
