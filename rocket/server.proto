@@ -4,8 +4,7 @@ option cc_generic_services = true;
 
 message makeOrderRequest
 {
-    int32 price = 1;
-    string goods = 2;
+    string req = 1;
 }
 
 message makeOrderResponse

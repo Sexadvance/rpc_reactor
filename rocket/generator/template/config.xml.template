@@ -1,7 +1,7 @@
 <? version="1.0" encoding="UTF-8">
 <root>
     <log>
-        <log_level>DEBUG</log_level>
+        <log_level>INFO</log_level>
         <log_file_name>${PROJECT_NAME}</log_file_name>
         <log_file_path>../${PROJECT_NAME}/log/</log_file_path>
         <log_max_file_size>1000000</log_max_file_size>

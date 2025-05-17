@@ -1,4 +1,4 @@
-# tinyrpc
+# rpc_reactor
 a tinyframework 
 
 ### 日志模块
@@ -101,7 +101,18 @@ class
 5.将response对象序列化为pb_data,再塞入到TinyPBProtocol结构体中，进行encode然后塞入buffer里面，发送回包
 ```
 
-3.1.1. protobuf
+### 2.6 通信协议
+1.PB_START 1字节 标志报文开始，值为0x02
+2.pk_len 4字节 报文长度 报文包括报文头和尾的长度
+3.msg_id_len 4字节 msg_id的长度
+4.msg_id 区分不同包和回包的字段
+5.method_name_len 4字节 调用的protobuf方法名的长度
+6.method_name 调用的protobuf方法名
+7.pd_data 被序列化后的数据
+8.m_check_sum 4字节 校验位
+9.PB_END 1字节 标志报文结束，值为0x03
+
+### 3.1.1. protobuf
 
 **protobuf** 是 **google** 开源的有名的序列化库。谷歌出品，必属精品！**TinyRPC** 的 **TinyPB** 协议是基于 protobuf 来 序列化/反序列化 的，因此这个库是必须的。
 
@@ -152,3 +163,4 @@ mkdir /usr/include/tinyxml
 
 cp *.h /usr/include/tinyxml
 ```
+

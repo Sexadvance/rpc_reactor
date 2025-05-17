@@ -12,12 +12,10 @@ message makeOrderResponse
 {
     int32 ret_code = 1;
     string res_info = 2;
-    string order_id = 3;
 }
 
-service StudentService
+service Service
 {
     rpc makeOrder(makeOrderRequest) returns (makeOrderResponse);
-    rpc testOrder(makeOrderRequest) returns (makeOrderResponse);
 }
 

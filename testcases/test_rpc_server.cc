@@ -28,10 +28,6 @@ public:
         ::makeOrderResponse* response,
         ::google::protobuf::Closure* done)
     {
-        APPDEBUGLOG("start sleep 5s");
-        sleep(5);
-        APPDEBUGLOG("end sleep 5s");
-
         if(request->price() < 10)
         {
             response->set_ret_code(-1);
@@ -66,7 +62,7 @@ int main(int argc,char* argv[])
     std::shared_ptr<OrderImpl> service = std::make_shared<OrderImpl>();
     rocket::RpcDispatcher::GetRpcDispatcher()->registerService(service);
 
-    rocket::IPNetAddr::s_ptr addr = std::make_shared<rocket::IPNetAddr>("127.0.0.1",rocket::Config::GetGlobalConfig()->m_port);
+    rocket::IPNetAddr::s_ptr addr = std::make_shared<rocket::IPNetAddr>(rocket::Config::GetGlobalConfig()->m_ip,rocket::Config::GetGlobalConfig()->m_port);
     DEBUGLOG("create addr %s",addr->toString().c_str());
 
     rocket::TcpServer tcp_server(addr);

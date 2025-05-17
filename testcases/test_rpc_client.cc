@@ -46,10 +46,10 @@ void test_tcp_client()
 
         message->m_method_name = "Order.makeOrder";
 
-        client.writeMessage(message,[request](rocket::AbstractProtocol::s_ptr msg_ptr){
+        client.writeMessage(message,[request,&client](rocket::AbstractProtocol::s_ptr msg_ptr){
             DEBUGLOG("send message successs,request[%s]",request.ShortDebugString().c_str());
         });
-        client.readMessage("99998888",[](rocket::AbstractProtocol::s_ptr msg_ptr){
+        client.readMessage("99998888",[&client](rocket::AbstractProtocol::s_ptr msg_ptr){
             std::shared_ptr<rocket::TinyPBProtocol>messages = std::dynamic_pointer_cast<rocket::TinyPBProtocol>(msg_ptr);
             DEBUGLOG("msg_id[%s], get response %s",messages->m_msg_id.c_str(),messages->m_pb_data.c_str());
             makeOrderResponse response;
@@ -60,64 +60,54 @@ void test_tcp_client()
                 return;
             }
             DEBUGLOG("get response success,response[%s]",response.ShortDebugString().c_str());
+            client.stop();
         });
     });  
 }
 
-void test_rpc_channel()
-{
-    NEWRPCCHANNEL("127.0.0.1:12345",channel);
+// void test_rpc_channel()
+// {
+//     NEWRPCCHANNEL("127.0.0.1:12345",channel);
 
-   // std::shared_ptr<makeOrderRequest> request = std::make_shared<makeOrderRequest>();
+//    // std::shared_ptr<makeOrderRequest> request = std::make_shared<makeOrderRequest>();
+//     NEWMESSAGE(makeOrderRequest, request);
 
-    NEWMESSAGE(makeOrderRequest, request);
-
-    NEWMESSAGE(makeOrderResponse, response);
-
-
-    request->set_price(100);
-    request->set_goods("apple");
-
-    //std::shared_ptr<rocket::RpcController> controller = std::make_shared<rocket::RpcController>();
-
-    NEWRPCCONTROLLER(controller);
-
-    controller->SetMsgId("99998888");
-    controller->SetTimeout(10000);
-
-    std::shared_ptr<rocket::RpcClosure> closure = std::make_shared<rocket::RpcClosure>([request,response,channel,controller]()mutable{
-        if(controller->GetErrorCode() ==0)
-        {
-            INFOLOG("call rpc success,request[%s], response[%s]",request->ShortDebugString().c_str(),response->ShortDebugString().c_str());
-            //执行业务逻辑
-            if(response->order_id() == "xxx")
-            {
-
-            }
-        }
-        else
-        {
-            ERRORLOG("call rpc failed, request[%s], error code[%d], error info[%s]",
-                        request->ShortDebugString().c_str(),
-                        controller->GetErrorCode(),
-                        controller->GetErrorInfo().c_str());
-        }
-        INFOLOG("now exit eventloop");
-        channel->getTcpClient()->stop();
-        channel.reset();
-    });
-
-    channel->Init(controller,request,response,closure);
-
-    Order_Stub stub(channel.get());
+//     NEWMESSAGE(makeOrderResponse, response);
 
 
-    //controller->SetTimeout(5000);
-    stub.makeOrder(controller.get(),request.get(),response.get(),closure.get());
+//     request->set_price(100);
+//     request->set_goods("apple");
 
-    CALLRPC("127.0.0.1:12345", Order_Stub, makeOrder, controller, request, response, closure);
+//     //std::shared_ptr<rocket::RpcController> controller = std::make_shared<rocket::RpcController>();
+//     NEWRPCCONTROLLER(controller);
 
-}
+//     controller->SetMsgId("99998888");
+//     controller->SetTimeout(10000);
+
+//     std::shared_ptr<rocket::RpcClosure> closure = std::make_shared<rocket::RpcClosure>([request,response,channel,controller]()mutable{
+//         if(controller->GetErrorCode() ==0)
+//         {
+//             INFOLOG("call rpc success,request[%s], response[%s]",request->ShortDebugString().c_str(),response->ShortDebugString().c_str());
+//             //执行业务逻辑
+//         }
+//         else
+//         {
+//             ERRORLOG("call rpc failed, request[%s], error code[%d], error info[%s]",
+//                         request->ShortDebugString().c_str(),
+//                         controller->GetErrorCode(),
+//                         controller->GetErrorInfo().c_str());
+//         }
+//         INFOLOG("now exit eventloop");
+//         channel->getTcpClient()->stop();
+//         channel.reset();
+//     });
+
+//     // channel->Init(controller,request,response,closure);
+//     // Order_Stub stub(channel.get());
+//     // stub.makeOrder(controller.get(),request.get(),response.get(),closure.get());
+//     CALLRPC("127.0.0.1:12345", Order_Stub, makeOrder, controller, request, response, closure);
+
+// }
 
 
 
@@ -127,7 +117,7 @@ int main()
 
     rocket::Logger::InitGlobalLogger(0);
 
-    //test_tcp_client();
-    test_rpc_channel();
+    test_tcp_client();
+    // test_rpc_channel();
     return 0;
 }

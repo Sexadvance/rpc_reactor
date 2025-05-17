@@ -53,7 +53,6 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_messages,TcpB
                 if(i + 1 < buffer->writeIndex())
                 {
                     pk_len = getInt32FromNetByte(&tmp[i+1]);
-                    DEBUGLOG("get pk_len = %d",pk_len);
 
                     //结束符的索引
                     int j = i + pk_len - 1;
@@ -66,6 +65,7 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_messages,TcpB
                         start_index = i;
                         end_index = j;
                         parse_success = true;
+                        DEBUGLOG("get pk_len = %d",pk_len);
                         break;
                     }
                 }
@@ -83,6 +83,8 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_messages,TcpB
             buffer->moveReadIndex(end_index - start_index + 1);
             std::shared_ptr<TinyPBProtocol> message = std::make_shared<TinyPBProtocol>();
 
+            //////////////////////////////////////////////////////////////////////////////
+            // pk_len
             message->m_pk_len = pk_len;
             int msg_id_len_index = start_index + sizeof(char) + sizeof(int32_t);
             if(msg_id_len_index >= end_index)
@@ -91,7 +93,10 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_messages,TcpB
                 ERRORLOG("Parse error,msg_id_len_index[%d] >= end_index[%d]",msg_id_len_index,end_index);
                 continue;
             }
+            /////////////////////////////////////////////////////////////////////////////
 
+            /////////////////////////////////////////////////////////////////////////////
+            // msg_id_len msg_id
             message->m_msg_id_len = getInt32FromNetByte(&tmp[msg_id_len_index]);
             DEBUGLOG("parse msg_id_len =%d",message->m_msg_id_len); 
 
@@ -101,7 +106,10 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_messages,TcpB
             memcpy(&msg_id[0],&tmp[msg_id_index],message->m_msg_id_len);
             message->m_msg_id = std::string(msg_id);
             DEBUGLOG("parse msg_id=%s",message->m_msg_id.c_str());
+            ////////////////////////////////////////////////////////////////////////////
 
+            /////////////////////////////////////////////////////////////////////////////
+            // method_name_len method_name
             int method_name_len_index = msg_id_index + message->m_msg_id_len;
             if(msg_id_len_index >= end_index)
             {
@@ -117,7 +125,10 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_messages,TcpB
             memcpy(&method_name[0],&tmp[method_name_index],message->m_method_name_len);
             message->m_method_name = std::string(method_name);
             DEBUGLOG("parse mathod_name=%s",message->m_method_name.c_str());
+            ///////////////////////////////////////////////////////////////////////////////
 
+            ///////////////////////////////////////////////////////////////////////////////
+            // err_code err_info_len err_info
             int err_code_index = method_name_index + message->m_method_name_len;
             if(err_code_index >= end_index)
             {
@@ -126,7 +137,6 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_messages,TcpB
                 continue;
             }
             message->m_err_code  = getInt32FromNetByte(&tmp[err_code_index]);
-
 
             int err_info_len_index = err_code_index + sizeof(message->m_err_code);
             if(err_info_len_index >= end_index)
@@ -138,17 +148,18 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_messages,TcpB
             message->m_err_info_len = getInt32FromNetByte(&tmp[err_info_len_index]);
 
             int err_info_index = err_info_len_index + sizeof(message->m_err_info_len);
-    
             char error_info[512] = {0};
             memcpy(&error_info[0],&tmp[err_info_index],message->m_err_info_len);
             message->m_err_info = std::string(error_info);
             DEBUGLOG("parse error_info=%s", message->m_err_info.c_str());
+            /////////////////////////////////////////////////////////////////////////////
 
-
+            /////////////////////////////////////////////////////////////////////////////
+            //pb_data
             int pb_data_len = message->m_pk_len - message->m_method_name_len - message->m_msg_id_len - message->m_err_info_len - 2 - 24;
-            
             int pd_data_index = err_info_index + message->m_err_info_len;
             message->m_pb_data = std::string(&tmp[pd_data_index],pb_data_len);
+            ////////////////////////////////////////////////////////////////////////////
 
 
             //这里校验和去解析
