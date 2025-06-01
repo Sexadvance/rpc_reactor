@@ -31,7 +31,11 @@ public:
     //如果读取message成功，会调用don函数，函数的入参就是message对象
     void readMessage(const std::string& msg_id,std::function<void(AbstractProtocol::s_ptr)> done);
 
+    //停止事件循环
     void stop();
+
+    //关闭连接
+    void shutdown();
 
     int getConnectErrorCode();
 

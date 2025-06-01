@@ -172,6 +172,12 @@ void TcpClient::stop()
     }
 }
 
+void TcpClient::shutdown()
+{
+    m_conncection->shutdown();
+}
+
+
 int  TcpClient::getConnectErrorCode()
 {
     return m_connect_error_code;
